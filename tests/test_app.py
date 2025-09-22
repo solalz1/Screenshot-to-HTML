@@ -192,21 +192,36 @@ class TestUIFunctions:
 class TestAPIValidation:
     """Test API key validation and external service interactions"""
 
-    @patch("app.genai")
-    def test_check_key_valid_api_key(self, mock_genai):
+    @patch("google.generativeai.GenerativeModel")
+    @patch("google.generativeai.configure")
+    def test_check_key_valid_api_key(self, mock_configure, mock_model_class):
         """Test API key validation with valid key - using proper Google GenAI API structure."""
-        mock_genai.configure = Mock()
-        mock_genai.GenerativeModel = Mock()
-        mock_model = Mock()
-        mock_model.generate_content.return_value = "success"
-        mock_genai.GenerativeModel.return_value = mock_model
+        # Create mock response object
+        mock_response = Mock()
+        mock_response.text = "success"
+        
+        # Setup mock model instance
+        mock_model_instance = Mock()
+        mock_model_instance.generate_content = Mock(return_value=mock_response)
+        
+        # Setup mock model class to return our mock instance
+        mock_model_class.return_value = mock_model_instance
 
-        # Should not raise an exception
-        result = check_key("valid_api_key", "test_model")
-
-        # Should return Gradio components
-        assert len(result) == 2
-        mock_genai.configure.assert_called_once()
+        try:
+            # Should not raise an exception
+            result = check_key("valid_api_key", "test_model")
+            
+            # Should return Gradio components
+            assert len(result) == 2
+            mock_configure.assert_called_once_with(api_key="valid_api_key")
+            mock_model_class.assert_called_once_with("gemini-1.5-flash")
+            mock_model_instance.generate_content.assert_called_once_with("Hello, world!")
+        except Exception as e:
+            # Add debugging info for CI failures
+            print(f"Test failed with exception: {e}")
+            print(f"Mock configure called: {mock_configure.called}")
+            print(f"Mock model class called: {mock_model_class.called}")
+            raise
 
     def test_check_key_empty_api_key(self):
         """Test API key validation with empty key"""
@@ -352,21 +367,36 @@ class TestIntegration:
         assert "<iframe" in prepared
         # Don't test for &quot; since simple HTML might not have quotes to escape
 
-    @patch("app.genai")
-    def test_api_integration_flow(self, mock_genai):
+    @patch("google.generativeai.GenerativeModel")
+    @patch("google.generativeai.configure")
+    def test_api_integration_flow(self, mock_configure, mock_model_class):
         """Test API validation and usage flow - using proper API structure"""
-        mock_genai.configure = Mock()
-        mock_genai.GenerativeModel = Mock()
-        mock_model = Mock()
-        mock_model.generate_content.return_value = "success"
-        mock_genai.GenerativeModel.return_value = mock_model
+        # Create mock response object
+        mock_response = Mock()
+        mock_response.text = "success"
+        
+        # Setup mock model instance
+        mock_model_instance = Mock()
+        mock_model_instance.generate_content = Mock(return_value=mock_response)
+        
+        # Setup mock model class to return our mock instance
+        mock_model_class.return_value = mock_model_instance
 
-        # Test valid key
-        result = check_key("valid_key", "test_model")
-        assert len(result) == 2
+        try:
+            # Test valid key
+            result = check_key("valid_key", "test_model")
+            assert len(result) == 2
 
-        # Test that configure is called
-        mock_genai.configure.assert_called_once()
+            # Test that configure is called
+            mock_configure.assert_called_once_with(api_key="valid_key")
+            mock_model_class.assert_called_once_with("gemini-1.5-flash")
+            mock_model_instance.generate_content.assert_called_once_with("Hello, world!")
+        except Exception as e:
+            # Add debugging info for CI failures
+            print(f"Integration test failed with exception: {e}")
+            print(f"Mock configure called: {mock_configure.called}")
+            print(f"Mock model class called: {mock_model_class.called}")
+            raise
 
 
 if __name__ == "__main__":
