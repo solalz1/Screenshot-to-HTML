@@ -209,7 +209,7 @@ class TestAPIValidation:
         # Setup mock gradio components
         mock_code = Mock(spec=gr.Code)
         mock_tabs = Mock(spec=gr.Tabs)
-
+        
         with patch("app.gr.Code", return_value=mock_code), \
              patch("app.gr.Tabs", return_value=mock_tabs), \
              patch("app.gr.Success"):
@@ -394,7 +394,7 @@ class TestIntegration:
         # Setup mock gradio components
         mock_code = Mock(spec=gr.Code)
         mock_tabs = Mock(spec=gr.Tabs)
-
+        
         with patch("app.gr.Code", return_value=mock_code), \
              patch("app.gr.Tabs", return_value=mock_tabs), \
              patch("app.gr.Success"):
