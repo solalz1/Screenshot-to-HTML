@@ -37,106 +37,106 @@ command_exists() {
 # Check prerequisites
 check_prerequisites() {
     print_status "Checking prerequisites..."
-    
+
     if ! command_exists python3; then
         print_error "Python 3 is not installed"
         exit 1
     fi
-    
+
     if ! command_exists pip; then
         print_error "pip is not installed"
         exit 1
     fi
-    
+
     if ! command_exists docker; then
         print_warning "Docker is not installed - skipping Docker tests"
         SKIP_DOCKER=true
     fi
-    
+
     print_success "Prerequisites check passed"
 }
 
 # Install dependencies
 install_dependencies() {
     print_status "Installing dependencies..."
-    
+
     # Create virtual environment if it doesn't exist
     if [ ! -d "venv" ]; then
         python3 -m venv venv
     fi
-    
+
     # Activate virtual environment
     source venv/bin/activate
-    
+
     # Install requirements
     pip install -r requirements.txt
     pip install pytest pytest-cov pytest-mock memory-profiler psutil
     pip install ruff black isort mypy safety bandit
-    
+
     print_success "Dependencies installed"
 }
 
 # Run code quality checks
 run_code_quality() {
     print_status "Running code quality checks..."
-    
+
     source venv/bin/activate
-    
+
     # Format check
     print_status "Checking code formatting with black..."
     black --check app.py tests/ || {
         print_warning "Code formatting issues found. Run 'black app.py tests/' to fix."
     }
-    
+
     # Import sorting
     print_status "Checking import sorting with isort..."
     isort --check-only app.py tests/ || {
         print_warning "Import sorting issues found. Run 'isort app.py tests/' to fix."
     }
-    
+
     # Linting
     print_status "Running linter with ruff..."
     ruff check app.py tests/
-    
+
     # Type checking
     print_status "Running type checker with mypy..."
     mypy app.py --ignore-missing-imports || {
         print_warning "Type checking issues found."
     }
-    
+
     print_success "Code quality checks completed"
 }
 
 # Run security checks
 run_security_checks() {
     print_status "Running security checks..."
-    
+
     source venv/bin/activate
-    
+
     # Safety check for dependencies
     print_status "Checking for security vulnerabilities in dependencies..."
     safety check || {
         print_warning "Security vulnerabilities found in dependencies"
     }
-    
+
     # Bandit security check
     print_status "Running bandit security scan..."
     bandit -r app.py -f json -o bandit-report.json || {
         print_warning "Security issues found. Check bandit-report.json"
     }
-    
+
     print_success "Security checks completed"
 }
 
 # Run tests
 run_tests() {
     print_status "Running tests..."
-    
+
     source venv/bin/activate
-    
+
     # Run tests with coverage
     pytest tests/ -v --cov=app --cov-report=xml --cov-report=term-missing
-    
+
     print_success "Tests completed"
 }
 
@@ -146,9 +146,9 @@ run_docker_tests() {
         print_warning "Skipping Docker tests (Docker not available)"
         return
     fi
-    
+
     print_status "Running Docker tests..."
-    
+
     # Test docker-compose configuration first (doesn't require image build)
     print_status "Testing docker-compose configuration..."
     if docker compose config > /dev/null 2>&1; then
@@ -157,12 +157,12 @@ run_docker_tests() {
         print_error "Docker-compose configuration is invalid"
         return 1
     fi
-    
+
     # Test Docker build (may fail due to authentication issues)
     print_status "Testing Docker build..."
     if docker build -t screenshot-to-html-test . > /dev/null 2>&1; then
         print_success "Docker build successful"
-        
+
         # Cleanup test image
         docker rmi screenshot-to-html-test > /dev/null 2>&1
     else
@@ -170,41 +170,41 @@ run_docker_tests() {
         print_warning "This is expected if Docker Hub email is not verified"
         print_warning "GitHub Actions will handle this with proper authentication"
     fi
-    
+
     print_success "Docker tests completed"
 }
 
 # Generate reports
 generate_reports() {
     print_status "Generating reports..."
-    
+
     # Create reports directory
     mkdir -p reports
-    
+
     # Move coverage report
     if [ -f "coverage.xml" ]; then
         mv coverage.xml reports/
     fi
-    
+
     # Move security reports
     if [ -f "bandit-report.json" ]; then
         mv bandit-report.json reports/
     fi
-    
+
     print_success "Reports generated in reports/ directory"
 }
 
 # Main execution
 main() {
     print_status "Starting local CI/CD pipeline..."
-    
+
     # Parse command line arguments
     RUN_ALL=true
     RUN_QUALITY=false
     RUN_SECURITY=false
     RUN_TESTS=false
     RUN_DOCKER=false
-    
+
     while [[ $# -gt 0 ]]; do
         case $1 in
             --quality)
@@ -244,28 +244,28 @@ main() {
                 ;;
         esac
     done
-    
+
     check_prerequisites
     install_dependencies
-    
+
     if [ "$RUN_ALL" = true ] || [ "$RUN_QUALITY" = true ]; then
         run_code_quality
     fi
-    
+
     if [ "$RUN_ALL" = true ] || [ "$RUN_SECURITY" = true ]; then
         run_security_checks
     fi
-    
+
     if [ "$RUN_ALL" = true ] || [ "$RUN_TESTS" = true ]; then
         run_tests
     fi
-    
+
     if [ "$RUN_ALL" = true ] || [ "$RUN_DOCKER" = true ]; then
         run_docker_tests
     fi
-    
+
     generate_reports
-    
+
     print_success "Local CI/CD pipeline completed successfully!"
 }
 

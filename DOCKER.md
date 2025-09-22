@@ -15,35 +15,27 @@ Before starting, ensure you have the following installed:
 ### Option 1: Using Docker Compose (Recommended)
 
 ```bash
-# Clone the repository
 git clone <repository-url>
 cd project
 
-# Start the application
 docker-compose up -d --build
 
-# Access the app at http://localhost:7860
 ```
 
 ### Option 2: Using Docker Run Script
 
 ```bash
-# Make the script executable
 chmod +x docker-run.sh
 
-# Build and run the application
 ./docker-run.sh run
 
-# Access the app at http://localhost:7860
 ```
 
 ### Option 3: Manual Docker Commands
 
 ```bash
-# Build the image
 docker build -t screenshot-to-html .
 
-# Run the container
 docker run -d \
   --name screenshot-to-html-app \
   -p 7860:7860 \
@@ -51,7 +43,6 @@ docker run -d \
   --restart unless-stopped \
   screenshot-to-html
 
-# Access the app at http://localhost:7860
 ```
 
 ## 🔧 Configuration
@@ -61,19 +52,15 @@ docker run -d \
 Create a `.env` file in the project root:
 
 ```bash
-# Copy the example file
 cp env.example .env
 
-# Edit with your settings
 nano .env
 ```
 
 Example `.env` file:
 ```bash
-# Google Gemini API Configuration
 GOOGLE_API_KEY=your_gemini_api_key_here
 
-# Gradio Configuration (optional)
 GRADIO_SERVER_NAME=0.0.0.0
 GRADIO_SERVER_PORT=7860
 DEBUG=false
@@ -325,4 +312,4 @@ If you encounter issues:
 4. **Network Check**: Verify port availability
 5. **Rebuild**: Try cleaning and rebuilding the image
 
-For more help, check the application logs and Docker documentation. 
+For more help, check the application logs and Docker documentation.

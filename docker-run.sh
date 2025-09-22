@@ -51,14 +51,14 @@ build_image() {
 # Function to run the container
 run_container() {
     print_status "Starting container..."
-    
+
     # Stop and remove existing container if it exists
     if docker ps -a --format 'table {{.Names}}' | grep -q "^$CONTAINER_NAME$"; then
         print_warning "Stopping existing container..."
         docker stop $CONTAINER_NAME > /dev/null 2>&1 || true
         docker rm $CONTAINER_NAME > /dev/null 2>&1 || true
     fi
-    
+
     # Check if .env file exists
     ENV_FILE=""
     if [ -f ".env" ]; then
@@ -67,7 +67,7 @@ run_container() {
     else
         print_warning "No .env file found. You can create one from env.example"
     fi
-    
+
     # Run the container
     docker run -d \
         --name $CONTAINER_NAME \
@@ -75,7 +75,7 @@ run_container() {
         $ENV_FILE \
         --restart unless-stopped \
         $IMAGE_NAME
-    
+
     print_success "Container started successfully!"
     print_status "Access the app at: http://localhost:$PORT"
 }
@@ -83,12 +83,12 @@ run_container() {
 # Function to use docker-compose
 compose_up() {
     print_status "Starting with docker-compose..."
-    
+
     if [ ! -f "docker-compose.yml" ]; then
         print_error "docker-compose.yml not found!"
         exit 1
     fi
-    
+
     docker-compose up -d --build
     print_success "Application started with docker-compose!"
     print_status "Access the app at: http://localhost:7860"
@@ -180,4 +180,4 @@ case "$1" in
         print_status "Use '$0 help' for usage information."
         exit 1
         ;;
-esac 
+esac

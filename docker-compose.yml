@@ -27,4 +27,4 @@ services:
 # Optional: Create a named volume for data persistence
 volumes:
   app_data:
-    driver: local 
+    driver: local

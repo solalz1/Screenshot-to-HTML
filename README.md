@@ -59,7 +59,7 @@ python app.py
 1. **Enter API Key**: Input your Gemini API key in the input field
 2. **Upload Screenshot**: Choose a screenshot of the website you want to recreate
 3. **Generate Code**: Click the "Send" button to generate HTML code
-4. **View Results**: 
+4. **View Results**:
    - **HTML Tab**: See the live interactive website preview
    - **Code Tab**: View and copy the generated HTML code
 
@@ -186,7 +186,7 @@ This project includes a comprehensive test suite with **73% code coverage** to e
 
 The test suite covers:
 - ✅ **Data Processing**: HTML extraction, validation, error handling
-- ✅ **File Operations**: Reading, error handling, Unicode support  
+- ✅ **File Operations**: Reading, error handling, Unicode support
 - ✅ **HTML Processing**: Content preparation, iframe generation, escaping
 - ✅ **API Integration**: Key validation, error handling (with mocking)
 - ✅ **UI Functions**: Basic Gradio component handling
