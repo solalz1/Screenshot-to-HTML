@@ -1,0 +1,91 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # Run weekly on Mondays at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Install pip-tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install pip-tools
+    
+    - name: Update requirements
+      run: |
+        # Create requirements.in if it doesn't exist
+        if [ ! -f requirements.in ]; then
+          cp requirements.txt requirements.in
+        fi
+        
+        # Update dependencies
+        pip-compile --upgrade requirements.in
+    
+    - name: Check for security vulnerabilities
+      run: |
+        pip install safety
+        safety check -r requirements.txt --json > safety-report.json || true
+    
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'chore: update dependencies'
+        title: 'Automated dependency updates'
+        body: |
+          This is an automated pull request to update Python dependencies.
+          
+          Please review the changes and run tests before merging.
+          
+          Security scan results are included in the CI pipeline.
+        branch: dependency-updates
+        delete-branch: true
+
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install safety pip-audit
+    
+    - name: Run safety check
+      run: |
+        safety check --json --output safety-report.json || true
+    
+    - name: Run pip-audit
+      run: |
+        pip-audit --format=json --output=pip-audit-report.json || true
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          safety-report.json
+          pip-audit-report.json

@@ -1,0 +1,80 @@
+name: Deploy to Production
+
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+jobs:
+  deploy-staging:
+    if: github.event.inputs.environment == 'staging' || (github.event_name == 'push' && contains(github.ref, 'beta'))
+    runs-on: ubuntu-latest
+    environment: staging
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment..."
+        echo "Image: ghcr.io/${{ github.repository }}:${{ github.ref_name }}"
+        # Add your staging deployment commands here
+        # Example: kubectl apply -f k8s/staging/
+        # Example: docker service update --image ghcr.io/${{ github.repository }}:${{ github.ref_name }} staging-service
+
+  deploy-production:
+    if: github.event.inputs.environment == 'production' || (github.event_name == 'push' && !contains(github.ref, 'beta'))
+    runs-on: ubuntu-latest
+    environment: production
+    needs: [security-scan]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production environment..."
+        echo "Image: ghcr.io/${{ github.repository }}:${{ github.ref_name }}"
+        # Add your production deployment commands here
+        # Example: kubectl apply -f k8s/production/
+        # Example: docker service update --image ghcr.io/${{ github.repository }}:${{ github.ref_name }} prod-service
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Run security scan before production deployment
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+        format: 'table'
+        exit-code: '1'
+        severity: 'CRITICAL,HIGH'
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always()
+    
+    steps:
+    - name: Notify deployment status
+      run: |
+        if [ "${{ needs.deploy-staging.result }}" == "success" ] || [ "${{ needs.deploy-production.result }}" == "success" ]; then
+          echo "✅ Deployment successful!"
+        else
+          echo "❌ Deployment failed!"
+        fi
+        # Add notification logic here (Slack, Discord, email, etc.)

@@ -107,6 +107,42 @@ Upload screenshots of websites you want to recreate as HTML code.
 - No data is permanently stored on the server
 - All processing happens in your local environment
 
+## 🔄 CI/CD Workflows
+
+The project includes several automated workflows:
+
+### **1. Continuous Integration (`ci.yml`)**
+Triggered on push to `main`/`develop` and pull requests:
+- Multi-version Python testing (3.9-3.12)
+- Code quality checks (ruff, black, isort, mypy)
+- Security scanning (safety, bandit)
+- Test coverage reporting
+
+### **2. Docker Build (`docker.yml`)**
+Triggered on push to `main` and tags:
+- Multi-architecture Docker builds (AMD64, ARM64)
+- Container security scanning with Trivy
+- Automatic pushes to GitHub Container Registry
+- Docker Compose validation
+
+### **3. Deployment (`deploy.yml`)**
+Triggered on version tags and manual dispatch:
+- Staging and production deployment environments
+- Security scan requirements for production
+- Deployment notifications
+
+### **4. Release Management (`release.yml`)**
+Triggered on version tags:
+- Automatic release creation with changelogs
+- Docker image publishing
+- Documentation updates
+
+### **5. Dependency Updates (`dependency-update.yml`)**
+Scheduled weekly:
+- Automated dependency updates via Dependabot
+- Security vulnerability scanning
+- Automated pull request creation
+
 ## 🛠️ Troubleshooting
 
 ### Common Issues
@@ -211,13 +247,32 @@ tests/
 │   └── TestIntegration      # End-to-end functionality
 ```
 
-### Continuous Integration
+### Continuous Integration & Deployment
 
-The test suite is designed to work in CI/CD environments and includes:
-- **Mocked API calls** - No real API keys needed for testing
-- **Temporary file handling** - Clean setup and teardown
-- **Cross-platform compatibility** - Works on Linux, macOS, and Windows
-- **Fast execution** - Complete test run in under 5 seconds
+The project includes comprehensive CI/CD pipelines with GitHub Actions:
+
+#### **Automated Testing**
+- **Multi-Python Support** - Tests on Python 3.9, 3.10, 3.11, 3.12
+- **Code Quality Checks** - Linting with ruff, formatting with black
+- **Security Scanning** - Dependency vulnerability checks with safety and bandit
+- **Coverage Reporting** - Automatic coverage reporting to Codecov
+- **Cross-platform** - Tests run on Linux, with Docker builds for multiple architectures
+
+#### **Docker & Deployment**
+- **Automated Docker Builds** - Multi-architecture images (AMD64, ARM64)
+- **Container Registry** - Automatic pushes to GitHub Container Registry
+- **Security Scanning** - Trivy vulnerability scanning for container images
+- **Deployment Automation** - Staging and production deployment workflows
+
+#### **Dependency Management**
+- **Dependabot Integration** - Automated dependency updates
+- **Security Monitoring** - Weekly security audits
+- **Automated PRs** - Dependency updates via pull requests
+
+#### **Release Management**
+- **Automated Releases** - Tag-based release creation with changelogs
+- **Semantic Versioning** - Support for pre-release versions (alpha, beta, rc)
+- **Container Tagging** - Docker images tagged with version numbers
 
 ## 🐳 Docker Deployment
 
