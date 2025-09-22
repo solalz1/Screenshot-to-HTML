@@ -151,7 +151,7 @@ run_docker_tests() {
     
     # Test docker-compose configuration first (doesn't require image build)
     print_status "Testing docker-compose configuration..."
-    if docker-compose config > /dev/null 2>&1; then
+    if docker compose config > /dev/null 2>&1; then
         print_success "Docker-compose configuration is valid"
     else
         print_error "Docker-compose configuration is invalid"

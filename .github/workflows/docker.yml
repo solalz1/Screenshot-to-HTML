@@ -65,7 +65,7 @@ jobs:
       if: github.event_name != 'pull_request'
     
     - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       if: github.event_name != 'pull_request'
       with:
         sarif_file: 'trivy-results.sarif'
@@ -84,7 +84,7 @@ jobs:
         echo "APP_DEBUG=false" >> .env
     
     - name: Test docker-compose build
-      run: docker-compose build
+      run: docker compose build
     
     - name: Test docker-compose up (without running)
-      run: docker-compose config
+      run: docker compose config
