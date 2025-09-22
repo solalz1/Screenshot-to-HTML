@@ -199,23 +199,25 @@ class TestAPIValidation:
         # Create mock response object
         mock_response = Mock()
         mock_response.text = "success"
-        
+
         # Setup mock model instance
         mock_model_instance = Mock()
         mock_model_instance.generate_content = Mock(return_value=mock_response)
-        
+
         # Setup mock model class to return our mock instance
         mock_model_class.return_value = mock_model_instance
 
         try:
             # Should not raise an exception
             result = check_key("valid_api_key", "test_model")
-            
+
             # Should return Gradio components
             assert len(result) == 2
             mock_configure.assert_called_once_with(api_key="valid_api_key")
             mock_model_class.assert_called_once_with("gemini-1.5-flash")
-            mock_model_instance.generate_content.assert_called_once_with("Hello, world!")
+            mock_model_instance.generate_content.assert_called_once_with(
+                "Hello, world!"
+            )
         except Exception as e:
             # Add debugging info for CI failures
             print(f"Test failed with exception: {e}")
@@ -374,11 +376,11 @@ class TestIntegration:
         # Create mock response object
         mock_response = Mock()
         mock_response.text = "success"
-        
+
         # Setup mock model instance
         mock_model_instance = Mock()
         mock_model_instance.generate_content = Mock(return_value=mock_response)
-        
+
         # Setup mock model class to return our mock instance
         mock_model_class.return_value = mock_model_instance
 
@@ -390,7 +392,9 @@ class TestIntegration:
             # Test that configure is called
             mock_configure.assert_called_once_with(api_key="valid_key")
             mock_model_class.assert_called_once_with("gemini-1.5-flash")
-            mock_model_instance.generate_content.assert_called_once_with("Hello, world!")
+            mock_model_instance.generate_content.assert_called_once_with(
+                "Hello, world!"
+            )
         except Exception as e:
             # Add debugging info for CI failures
             print(f"Integration test failed with exception: {e}")
