@@ -6,7 +6,6 @@ from unittest.mock import Mock, patch
 import gradio as gr
 import pytest
 
-# Add parent directory to path to import app modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import (
@@ -194,10 +193,7 @@ class TestAPIValidation:
 
     @patch("app.genai.configure")
     @patch("app.genai.GenerativeModel")
-    @patch("app.gr.Success")
-    def test_check_key_valid_api_key(
-        self, mock_success, mock_model_class, mock_configure
-    ):
+    def test_check_key_valid_api_key(self, mock_model_class, mock_configure):
         """Test API key validation with valid key - comprehensive mocking for Python 3.9 compatibility."""
         # Create mock response object
         mock_response = Mock()
@@ -209,15 +205,14 @@ class TestAPIValidation:
 
         # Setup mock model class to return our mock instance
         mock_model_class.return_value = mock_model_instance
-
+        
         # Setup mock gradio components
         mock_code = Mock(spec=gr.Code)
         mock_tabs = Mock(spec=gr.Tabs)
 
-        with (
-            patch("app.gr.Code", return_value=mock_code),
-            patch("app.gr.Tabs", return_value=mock_tabs),
-        ):
+        with patch("app.gr.Code", return_value=mock_code), \
+             patch("app.gr.Tabs", return_value=mock_tabs), \
+             patch("app.gr.Success"):
             try:
                 # Should not raise an exception
                 result = check_key("valid_api_key", "test_model")
@@ -383,8 +378,7 @@ class TestIntegration:
 
     @patch("app.genai.configure")
     @patch("app.genai.GenerativeModel")
-    @patch("app.gr.Success")
-    def test_api_integration_flow(self, mock_success, mock_model_class, mock_configure):
+    def test_api_integration_flow(self, mock_model_class, mock_configure):
         """Test API validation and usage flow - comprehensive mocking for Python 3.9 compatibility"""
         # Create mock response object
         mock_response = Mock()
@@ -396,15 +390,14 @@ class TestIntegration:
 
         # Setup mock model class to return our mock instance
         mock_model_class.return_value = mock_model_instance
-
+        
         # Setup mock gradio components
         mock_code = Mock(spec=gr.Code)
         mock_tabs = Mock(spec=gr.Tabs)
 
-        with (
-            patch("app.gr.Code", return_value=mock_code),
-            patch("app.gr.Tabs", return_value=mock_tabs),
-        ):
+        with patch("app.gr.Code", return_value=mock_code), \
+             patch("app.gr.Tabs", return_value=mock_tabs), \
+             patch("app.gr.Success"):
             try:
                 # Test valid key
                 result = check_key("valid_key", "test_model")
