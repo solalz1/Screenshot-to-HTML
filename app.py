@@ -1,17 +1,19 @@
-import gradio as gr
 import os
-import time
-import google.generativeai as genai
-from google.generativeai import types
 import re
+import time
+
+import google.generativeai as genai
+import gradio as gr
+
 
 def extract_html_code(text: str):
     # Extract the HTML code from the response
-    match = re.search(r'```html(.*)```', text, re.DOTALL)
+    match = re.search(r"```html(.*)```", text, re.DOTALL)
     if match:
         return match.group(1)
     else:
         raise ValueError("No HTML code block found in the text")
+
 
 api_key = os.getenv("GOOGLE_API_KEY", "")
 
@@ -204,7 +206,7 @@ EXAMPLE BEGINNING
         const retourInputDisplay = document.getElementById('retourInputDisplay');
         const datePickerPanel = document.getElementById('datePickerPanel');
         const resetDatesButton = document.getElementById('resetDatesButton');
-        
+
         const month1NameEl = document.getElementById('month1Name');
         const month1DaysEl = document.getElementById('month1Days');
         const month2NameEl = document.getElementById('month2Name');
@@ -233,7 +235,7 @@ EXAMPLE BEGINNING
         function renderCalendar(year, month, monthNameEl, daysEl) {
             monthNameEl.textContent = monthNames[month];
             daysEl.innerHTML = '';
-            
+
             const daysInMonth = getDaysInMonth(year, month);
             const firstDay = getFirstDayOfMonth(year, month);
 
@@ -247,7 +249,7 @@ EXAMPLE BEGINNING
                 dayCell.textContent = day;
                 dayCell.classList.add('calendar-day', 'p-1', 'cursor-pointer', 'h-8', 'w-8', 'flex', 'items-center', 'justify-center');
                 const date = new Date(year, month, day);
-                
+
                 // Disable past dates (simple version: all dates before today)
                 // const today = new Date();
                 // today.setHours(0,0,0,0);
@@ -296,7 +298,7 @@ EXAMPLE BEGINNING
                 const day = parseInt(cell.textContent);
                 const cellMonthName = cell.closest('.grid.grid-cols-1.md\\:grid-cols-2 > div').querySelector('h3').textContent;
                 const cellMonth = monthNames.indexOf(cellMonthName.toLowerCase());
-                
+
                 if (cellMonth === -1) return; // Should not happen
 
                 const cellDate = new Date(year, cellMonth, day);
@@ -381,10 +383,10 @@ EXAMPLE BEGINNING
 
         // Close date picker if clicking outside
         document.addEventListener('click', function(event) {
-            const isClickInsideForm = departInputDisplay.contains(event.target) || 
+            const isClickInsideForm = departInputDisplay.contains(event.target) ||
                                       retourInputDisplay.contains(event.target) ||
                                       datePickerPanel.contains(event.target);
-            
+
             if (!isClickInsideForm && !datePickerPanel.classList.contains('hidden')) {
                 datePickerPanel.classList.add('hidden');
                 departInputDisplay.classList.remove('date-input-active');
@@ -525,7 +527,7 @@ hf_example = """
                     <a href="#" class="sidebar-link"><i class="fas fa-graduation-cap w-5 h-5"></i><span>Learn</span></a>
                 </nav>
             </div>
-            
+
             <div class="pt-4 border-t border-gray-700">
                  <a href="#" class="sidebar-link"><i class="fas fa-sun w-5 h-5"></i><span>Light theme</span></a>
             </div>
@@ -546,7 +548,7 @@ hf_example = """
                     <button class="main-content-tab">last 7 days</button>
                 </div>
             </div>
-            
+
             <div class="mb-4 border-b border-gray-700">
                 <nav class="flex space-x-2 -mb-px" aria-label="Tabs">
                     <a href="#" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-blue-500 text-blue-400">All</a>
@@ -612,7 +614,7 @@ hf_example = """
                         <button class="hover:text-blue-400"><i class="fas fa-comment-alt mr-1"></i> Reply</button>
                     </div>
                 </div>
-                
+
                 <div class="post-card">
                     <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center space-x-2">
@@ -653,7 +655,7 @@ hf_example = """
                 </div>
                 <p class="text-xs text-gray-400">Generate any application with DeepSeek</p>
             </div>
-            
+
             <div class="trending-item-card">
                  <div class="flex items-center justify-between mb-1">
                     <a href="#" class="text-blue-400 hover:underline font-semibold text-sm">nari-labs/Dia-1.6B</a>
@@ -700,7 +702,7 @@ hf_example = """
             if (link.getAttribute('href') === '#') {
                  e.preventDefault();
             }
-           
+
             sidebarLinks.forEach(l => l.classList.remove('active'));
             this.classList.add('active');
         });
@@ -714,7 +716,7 @@ hf_example = """
             this.classList.add('active');
         });
     });
-    
+
     // Example: Filter tabs in main content
     const filterTabs = document.querySelectorAll('nav[aria-label="Tabs"] a');
     filterTabs.forEach(tab => {
@@ -811,7 +813,7 @@ notion_example = """
                 <circle cx="130" cy="110" r="8" fill="#ff4500"/>
                 <circle cx="170" cy="110" r="8" fill="#ff4500"/>
                 <path d="M130 120 C 135 125 165 125 170 120" stroke="#ff4500" stroke-width="4" fill="none"/>
-                
+
                 <path d="M270 130 Q 300 100 330 130" stroke="black" stroke-width="4" fill="none"/>
                 <path d="M280 180 C 290 190 310 190 320 180" stroke="black" stroke-width="4" fill="none"/>
                 <circle cx="340" cy="150" r="20" fill="#1a73e8"/>
@@ -862,15 +864,17 @@ Focus on compact code and legibility.
 Your output must be inside ```html ... ``` tags.
 """
 
+
 def get_html_content(html_file_path):
     try:
-        with open(html_file_path, "r", encoding="utf-8") as f:
+        with open(html_file_path, encoding="utf-8") as f:
             html_content_data = f.read()
         return html_content_data
     except FileNotFoundError:
         return "<p>Error: HTML file not found. Please create a 'base.html' file.</p>"
     except Exception as e:
         return f"<p>An error occurred while reading HTML: {str(e)}</p>"
+
 
 # --- Get your HTML content ---
 actual_html_content = get_html_content("base.html")
@@ -886,10 +890,14 @@ custom_iframe_template = """
 </iframe>
 """
 
+
 def prepare_html_content(html_content: str):
-    escaped_html_for_srcdoc = html_content.replace('"', '&quot;')
-    html_content = custom_iframe_template.format(escaped_html_for_srcdoc=escaped_html_for_srcdoc)
+    escaped_html_for_srcdoc = html_content.replace('"', "&quot;")
+    html_content = custom_iframe_template.format(
+        escaped_html_for_srcdoc=escaped_html_for_srcdoc
+    )
     return html_content
+
 
 cached_examples = ["screenshot_notion.png", "screenshot_hf.png"]
 
@@ -902,8 +910,10 @@ default_example_index = 0
 default_example = cached_examples[default_example_index]
 default_example_html, default_example_code = cached_examples_to_outputs[default_example]
 
+
 def display_cached_examples(image_input):
     return cached_examples_to_outputs[image_input.split("/")[-1]]
+
 
 # --- Chatbot Function (Example) ---
 async def chat_function(message, history):
@@ -911,7 +921,11 @@ async def chat_function(message, history):
     # Simulate a response
     response = f"Bot: I received '{message}'"
     history.append((message, response))
-    return history, ""  # Return updated history for chatbot, and empty string to clear the textbox
+    return (
+        history,
+        "",
+    )  # Return updated history for chatbot, and empty string to clear the textbox
+
 
 def stream_code(image_input, gemini_api_key, model_name):
     gr.Info("Generating code from screenshot...")
@@ -919,15 +933,15 @@ def stream_code(image_input, gemini_api_key, model_name):
 
     # Upload the image file
     image_file = genai.upload_file(image_input)
-    
+
     # Create the model
     model = genai.GenerativeModel(model_name)
-    
+
     contents = [
         few_shot_examples,
         system_prompt,
         "Screenshot of the website to replicate:",
-        image_file
+        image_file,
     ]
 
     print("contents: ", contents)
@@ -941,20 +955,28 @@ def stream_code(image_input, gemini_api_key, model_name):
             yield gr.Code(value=output)
     except Exception as e:
         print("error: ", e)
-        raise gr.Error("Error when using Gemini API. Please retry later. Error:\n" + str(e))
+        raise gr.Error(
+            "Error when using Gemini API. Please retry later. Error:\n" + str(e)
+        )
 
     print("output: ", output)
     gr.Success("Code generation complete")
+
 
 def display_html(raw_output):
     print("--------------------------------")
     print("raw_output: ", raw_output)
     raw_html = extract_html_code(raw_output)
-    
+
     print("--------------------------------")
     print("raw_html: ", raw_html)
     html_content = prepare_html_content(raw_html)
-    return gr.HTML(html_content), gr.Tabs(selected=0), gr.Code(value=raw_html, language="html")
+    return (
+        gr.HTML(html_content),
+        gr.Tabs(selected=0),
+        gr.Code(value=raw_html, language="html"),
+    )
+
 
 def bot(history: list):
     response = "**That's cool!**"
@@ -964,21 +986,24 @@ def bot(history: list):
         time.sleep(0.05)
         yield history
 
+
 def clear(html_display, code_display):
     return gr.HTML(value=""), gr.Code(value="")
+
 
 def check_key(gemini_api_key, model_name):
     if gemini_api_key == "":
         raise gr.Error("Gemini API Key is empty")
-    
+
     try:
         genai.configure(api_key=gemini_api_key)
         model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content("Hello, world!")
+        model.generate_content("Hello, world!")
         gr.Success("Gemini API Key is valid")
         return gr.Code(value=""), gr.Tabs(selected=1)
-    except Exception as e:
+    except Exception:
         raise gr.Error("Gemini API Key is invalid")
+
 
 project_description = """
 <h1 style="text-align: center;">📷 Screenshot to HTML</h1>
@@ -999,25 +1024,30 @@ Easily turn mocks into HTML, or get started from an existing inspiring website.
 """
 
 # --- Gradio Interface ---
-with gr.Blocks(theme=gr.themes.Default()) as demo: # You can experiment with themes
+with gr.Blocks(theme=gr.themes.Default()) as demo:  # You can experiment with themes
 
     gemini_key_is_valid = gr.State(False)
 
     gr.Markdown(project_description)
-    
+
     with gr.Row():
-        with gr.Column(scale=2): # 20%
+        with gr.Column(scale=2):  # 20%
             gr.Markdown("## Input")
             gemini_api_key = gr.Textbox(
-                label="Gemini API Key",info="You can try with Gemini Flash *for free* on https://aistudio.google.com/app/apikey", value=api_key, interactive=True, type="password")
-            
+                label="Gemini API Key",
+                info="You can try with Gemini Flash *for free* on https://aistudio.google.com/app/apikey",
+                value=api_key,
+                interactive=True,
+                type="password",
+            )
+
             gr.Markdown("Input the screenshot to replicate into a HTML page here:")
             image_input = gr.Image(
                 label="Screenshot",
                 interactive=True,
                 type="filepath",
                 # value=default_example,
-                visible=True
+                visible=True,
             )
             with gr.Accordion("Model choice", open=False):
                 model_name = gr.Dropdown(
@@ -1025,28 +1055,30 @@ with gr.Blocks(theme=gr.themes.Default()) as demo: # You can experiment with the
                     value=supported_models[0],
                     interactive=True,
                     choices=supported_models,
-                    info="Gemini Flash is free and fast to use, but for better results, use Gemini Pro."
+                    info="Gemini Flash is free and fast to use, but for better results, use Gemini Pro.",
                 )
             send_button = gr.Button(value="Send")
             clear_button = gr.Button(value="Reset")
 
-        with gr.Column(scale=8): # 80%
+        with gr.Column(scale=8):  # 80%
             gr.Markdown("## Output")
             with gr.Tabs(selected=0) as tab_group:
                 with gr.Tab("HTML", id=0):
                     html_display = gr.HTML(
-                        label="HTML Content", 
+                        label="HTML Content",
                         value="The HTML code will be rendered here",
                     )
                 with gr.Tab("Code", id=1):
                     code_display = gr.Code(
-                        label="Code Content", 
-                        language="html", 
+                        label="Code Content",
+                        language="html",
                         value="The code will be rendered here",
                     )
     with gr.Row():
         with gr.Column(scale=2):
-            gr.Markdown("You can click on the examples below to see the output of the code generated from sample screenshots:")
+            gr.Markdown(
+                "You can click on the examples below to see the output of the code generated from sample screenshots:"
+            )
             # examples = gr.Examples(
             #         examples=cached_examples,
             #         inputs=image_input,
@@ -1054,9 +1086,11 @@ with gr.Blocks(theme=gr.themes.Default()) as demo: # You can experiment with the
             #         cache_examples=True,
             #         cache_mode="eager",
             #         fn = display_cached_examples,
-            # 
+            #
             # )
-            gr.Markdown("*Examples temporarily disabled - upload your own screenshot to test*")
+            gr.Markdown(
+                "*Examples temporarily disabled - upload your own screenshot to test*"
+            )
         with gr.Column(scale=8):
             gr.Textbox(visible=False)
     clear_fields = send_button.click(
@@ -1068,7 +1102,7 @@ with gr.Blocks(theme=gr.themes.Default()) as demo: # You can experiment with the
     )
 
     code_streaming = is_key_valid.then(
-            stream_code, [image_input, gemini_api_key, model_name], [code_display]
+        stream_code, [image_input, gemini_api_key, model_name], [code_display]
     )
     then_display_html = code_streaming.then(
         display_html, [code_display], [html_display, tab_group, code_display]
@@ -1079,13 +1113,13 @@ with gr.Blocks(theme=gr.themes.Default()) as demo: # You can experiment with the
 
 if __name__ == "__main__":
     import os
-    
+
     # Configure for Docker deployment
     server_name = os.getenv("GRADIO_SERVER_NAME", "127.0.0.1")
     server_port = int(os.getenv("GRADIO_SERVER_PORT", "7860"))
-    
+
     demo.launch(
         server_name=server_name,
         server_port=server_port,
-        debug=os.getenv("DEBUG", "false").lower() == "true"
+        debug=os.getenv("DEBUG", "false").lower() == "true",
     )
