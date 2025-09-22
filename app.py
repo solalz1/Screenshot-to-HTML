@@ -1025,7 +1025,6 @@ Easily turn mocks into HTML, or get started from an existing inspiring website.
 
 # --- Gradio Interface ---
 with gr.Blocks(theme=gr.themes.Default()) as demo:  # You can experiment with themes
-
     gemini_key_is_valid = gr.State(False)
 
     gr.Markdown(project_description)

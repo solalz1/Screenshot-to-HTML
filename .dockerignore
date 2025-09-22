@@ -62,4 +62,4 @@ README.md
 
 # Docker files (don't include other Docker files)
 Dockerfile*
-docker-compose*.yml 
+docker-compose*.yml

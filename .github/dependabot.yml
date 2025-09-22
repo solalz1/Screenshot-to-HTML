@@ -16,7 +16,7 @@ updates:
     labels:
       - "dependencies"
       - "python"
-    
+
   # Enable version updates for Docker
   - package-ecosystem: "docker"
     directory: "/"
@@ -33,7 +33,7 @@ updates:
     labels:
       - "dependencies"
       - "docker"
-    
+
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"

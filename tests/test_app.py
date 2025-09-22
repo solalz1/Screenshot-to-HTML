@@ -6,7 +6,6 @@ from unittest.mock import Mock, patch
 import gradio as gr
 import pytest
 
-# Add parent directory to path to import app modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import (
@@ -192,21 +191,50 @@ class TestUIFunctions:
 class TestAPIValidation:
     """Test API key validation and external service interactions"""
 
-    @patch("app.genai")
-    def test_check_key_valid_api_key(self, mock_genai):
-        """Test API key validation with valid key - using proper Google GenAI API structure."""
-        mock_genai.configure = Mock()
-        mock_genai.GenerativeModel = Mock()
-        mock_model = Mock()
-        mock_model.generate_content.return_value = "success"
-        mock_genai.GenerativeModel.return_value = mock_model
+    @patch("app.genai.configure")
+    @patch("app.genai.GenerativeModel")
+    @patch("app.gr.Success")
+    def test_check_key_valid_api_key(
+        self, mock_success, mock_model_class, mock_configure
+    ):
+        """Test API key validation with valid key - comprehensive mocking for Python 3.9 compatibility."""
+        # Create mock response object
+        mock_response = Mock()
+        mock_response.text = "success"
 
-        # Should not raise an exception
-        result = check_key("valid_api_key", "test_model")
+        # Setup mock model instance
+        mock_model_instance = Mock()
+        mock_model_instance.generate_content = Mock(return_value=mock_response)
 
-        # Should return Gradio components
-        assert len(result) == 2
-        mock_genai.configure.assert_called_once()
+        # Setup mock model class to return our mock instance
+        mock_model_class.return_value = mock_model_instance
+
+        # Setup mock gradio components
+        mock_code = Mock(spec=gr.Code)
+        mock_tabs = Mock(spec=gr.Tabs)
+
+        with (
+            patch("app.gr.Code", return_value=mock_code),
+            patch("app.gr.Tabs", return_value=mock_tabs),
+        ):
+            try:
+                # Should not raise an exception
+                result = check_key("valid_api_key", "test_model")
+
+                # Should return Gradio components
+                assert len(result) == 2
+                mock_configure.assert_called_once_with(api_key="valid_api_key")
+                mock_model_class.assert_called_once_with("gemini-1.5-flash")
+                mock_model_instance.generate_content.assert_called_once_with(
+                    "Hello, world!"
+                )
+            except Exception as e:
+                # Add debugging info for CI failures
+                print(f"Test failed with exception: {e}")
+                print(f"Mock configure called: {mock_configure.called}")
+                print(f"Mock model class called: {mock_model_class.called}")
+                print(f"Exception type: {type(e)}")
+                raise
 
     def test_check_key_empty_api_key(self):
         """Test API key validation with empty key"""
@@ -352,21 +380,48 @@ class TestIntegration:
         assert "<iframe" in prepared
         # Don't test for &quot; since simple HTML might not have quotes to escape
 
-    @patch("app.genai")
-    def test_api_integration_flow(self, mock_genai):
-        """Test API validation and usage flow - using proper API structure"""
-        mock_genai.configure = Mock()
-        mock_genai.GenerativeModel = Mock()
-        mock_model = Mock()
-        mock_model.generate_content.return_value = "success"
-        mock_genai.GenerativeModel.return_value = mock_model
+    @patch("app.genai.configure")
+    @patch("app.genai.GenerativeModel")
+    @patch("app.gr.Success")
+    def test_api_integration_flow(self, mock_success, mock_model_class, mock_configure):
+        """Test API validation and usage flow - comprehensive mocking for Python 3.9 compatibility"""
+        # Create mock response object
+        mock_response = Mock()
+        mock_response.text = "success"
 
-        # Test valid key
-        result = check_key("valid_key", "test_model")
-        assert len(result) == 2
+        # Setup mock model instance
+        mock_model_instance = Mock()
+        mock_model_instance.generate_content = Mock(return_value=mock_response)
 
-        # Test that configure is called
-        mock_genai.configure.assert_called_once()
+        # Setup mock model class to return our mock instance
+        mock_model_class.return_value = mock_model_instance
+
+        # Setup mock gradio components
+        mock_code = Mock(spec=gr.Code)
+        mock_tabs = Mock(spec=gr.Tabs)
+
+        with (
+            patch("app.gr.Code", return_value=mock_code),
+            patch("app.gr.Tabs", return_value=mock_tabs),
+        ):
+            try:
+                # Test valid key
+                result = check_key("valid_key", "test_model")
+                assert len(result) == 2
+
+                # Test that configure is called
+                mock_configure.assert_called_once_with(api_key="valid_key")
+                mock_model_class.assert_called_once_with("gemini-1.5-flash")
+                mock_model_instance.generate_content.assert_called_once_with(
+                    "Hello, world!"
+                )
+            except Exception as e:
+                # Add debugging info for CI failures
+                print(f"Integration test failed with exception: {e}")
+                print(f"Mock configure called: {mock_configure.called}")
+                print(f"Mock model class called: {mock_model_class.called}")
+                print(f"Exception type: {type(e)}")
+                raise
 
 
 if __name__ == "__main__":
