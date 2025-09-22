@@ -78,8 +78,10 @@ jobs:
     
     - name: Create test environment file
       run: |
+        # Create .env file for testing
         cp env.example .env
         echo "GOOGLE_API_KEY=test-key-for-ci" >> .env
+        echo "APP_DEBUG=false" >> .env
     
     - name: Test docker-compose build
       run: docker-compose build
