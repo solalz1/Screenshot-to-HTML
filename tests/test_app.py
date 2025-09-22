@@ -192,9 +192,9 @@ class TestUIFunctions:
 class TestAPIValidation:
     """Test API key validation and external service interactions"""
 
-    @patch("app.genai.GenerativeModel")
     @patch("app.genai.configure")
-    def test_check_key_valid_api_key(self, mock_configure, mock_model_class):
+    @patch("app.genai.GenerativeModel")
+    def test_check_key_valid_api_key(self, mock_model_class, mock_configure):
         """Test API key validation with valid key - using app.genai imports."""
         # Create mock response object
         mock_response = Mock()
@@ -369,9 +369,9 @@ class TestIntegration:
         assert "<iframe" in prepared
         # Don't test for &quot; since simple HTML might not have quotes to escape
 
-    @patch("app.genai.GenerativeModel")
     @patch("app.genai.configure")
-    def test_api_integration_flow(self, mock_configure, mock_model_class):
+    @patch("app.genai.GenerativeModel")
+    def test_api_integration_flow(self, mock_model_class, mock_configure):
         """Test API validation and usage flow - using app.genai imports"""
         # Create mock response object
         mock_response = Mock()
