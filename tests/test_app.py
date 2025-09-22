@@ -194,8 +194,9 @@ class TestAPIValidation:
 
     @patch("app.genai.configure")
     @patch("app.genai.GenerativeModel")
-    def test_check_key_valid_api_key(self, mock_model_class, mock_configure):
-        """Test API key validation with valid key - using app.genai imports."""
+    @patch("app.gr.Success")
+    def test_check_key_valid_api_key(self, mock_success, mock_model_class, mock_configure):
+        """Test API key validation with valid key - comprehensive mocking for Python 3.9 compatibility."""
         # Create mock response object
         mock_response = Mock()
         mock_response.text = "success"
@@ -206,24 +207,31 @@ class TestAPIValidation:
 
         # Setup mock model class to return our mock instance
         mock_model_class.return_value = mock_model_instance
+        
+        # Setup mock gradio components
+        mock_code = Mock(spec=gr.Code)
+        mock_tabs = Mock(spec=gr.Tabs)
+        
+        with patch("app.gr.Code", return_value=mock_code), \
+             patch("app.gr.Tabs", return_value=mock_tabs):
+            try:
+                # Should not raise an exception
+                result = check_key("valid_api_key", "test_model")
 
-        try:
-            # Should not raise an exception
-            result = check_key("valid_api_key", "test_model")
-
-            # Should return Gradio components
-            assert len(result) == 2
-            mock_configure.assert_called_once_with(api_key="valid_api_key")
-            mock_model_class.assert_called_once_with("gemini-1.5-flash")
-            mock_model_instance.generate_content.assert_called_once_with(
-                "Hello, world!"
-            )
-        except Exception as e:
-            # Add debugging info for CI failures
-            print(f"Test failed with exception: {e}")
-            print(f"Mock configure called: {mock_configure.called}")
-            print(f"Mock model class called: {mock_model_class.called}")
-            raise
+                # Should return Gradio components
+                assert len(result) == 2
+                mock_configure.assert_called_once_with(api_key="valid_api_key")
+                mock_model_class.assert_called_once_with("gemini-1.5-flash")
+                mock_model_instance.generate_content.assert_called_once_with(
+                    "Hello, world!"
+                )
+            except Exception as e:
+                # Add debugging info for CI failures
+                print(f"Test failed with exception: {e}")
+                print(f"Mock configure called: {mock_configure.called}")
+                print(f"Mock model class called: {mock_model_class.called}")
+                print(f"Exception type: {type(e)}")
+                raise
 
     def test_check_key_empty_api_key(self):
         """Test API key validation with empty key"""
@@ -371,8 +379,9 @@ class TestIntegration:
 
     @patch("app.genai.configure")
     @patch("app.genai.GenerativeModel")
-    def test_api_integration_flow(self, mock_model_class, mock_configure):
-        """Test API validation and usage flow - using app.genai imports"""
+    @patch("app.gr.Success")
+    def test_api_integration_flow(self, mock_success, mock_model_class, mock_configure):
+        """Test API validation and usage flow - comprehensive mocking for Python 3.9 compatibility"""
         # Create mock response object
         mock_response = Mock()
         mock_response.text = "success"
@@ -383,24 +392,31 @@ class TestIntegration:
 
         # Setup mock model class to return our mock instance
         mock_model_class.return_value = mock_model_instance
+        
+        # Setup mock gradio components
+        mock_code = Mock(spec=gr.Code)
+        mock_tabs = Mock(spec=gr.Tabs)
+        
+        with patch("app.gr.Code", return_value=mock_code), \
+             patch("app.gr.Tabs", return_value=mock_tabs):
+            try:
+                # Test valid key
+                result = check_key("valid_key", "test_model")
+                assert len(result) == 2
 
-        try:
-            # Test valid key
-            result = check_key("valid_key", "test_model")
-            assert len(result) == 2
-
-            # Test that configure is called
-            mock_configure.assert_called_once_with(api_key="valid_key")
-            mock_model_class.assert_called_once_with("gemini-1.5-flash")
-            mock_model_instance.generate_content.assert_called_once_with(
-                "Hello, world!"
-            )
-        except Exception as e:
-            # Add debugging info for CI failures
-            print(f"Integration test failed with exception: {e}")
-            print(f"Mock configure called: {mock_configure.called}")
-            print(f"Mock model class called: {mock_model_class.called}")
-            raise
+                # Test that configure is called
+                mock_configure.assert_called_once_with(api_key="valid_key")
+                mock_model_class.assert_called_once_with("gemini-1.5-flash")
+                mock_model_instance.generate_content.assert_called_once_with(
+                    "Hello, world!"
+                )
+            except Exception as e:
+                # Add debugging info for CI failures
+                print(f"Integration test failed with exception: {e}")
+                print(f"Mock configure called: {mock_configure.called}")
+                print(f"Mock model class called: {mock_model_class.called}")
+                print(f"Exception type: {type(e)}")
+                raise
 
 
 if __name__ == "__main__":
