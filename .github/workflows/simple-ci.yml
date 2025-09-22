@@ -1,0 +1,57 @@
+name: Simple CI Test
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-basic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-mock
+    
+    - name: Run basic tests
+      run: |
+        python --version
+        python -c "import gradio; print('Gradio imported successfully')"
+        python -c "import google.generativeai; print('Google GenAI imported successfully')"
+        python -c "from app import get_html_content; print('App imports working')"
+        echo "Basic smoke tests passed"
+
+  code-quality-simple:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black isort ruff
+    
+    - name: Check formatting
+      run: |
+        black --check app.py tests/
+        isort --check-only app.py tests/
+        ruff check app.py tests/
