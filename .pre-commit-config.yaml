@@ -38,17 +38,8 @@ repos:
       - id: check-ast
       - id: debug-statements
 
-  # Local hooks for project-specific checks
-  - repo: local
-    hooks:
-      - id: pytest-all
-        name: run tests with coverage
-        entry: bash
-        language: system
-        types: [python]
-        args: [-c, 'pytest tests/ -v --tb=short --cov=app --cov-report=term-missing --cov-fail-under=70 && echo "Tests and coverage check passed"']
-        pass_filenames: false
-        always_run: true
+  # Note: pytest tests are handled in CI pipeline, not in pre-commit
+  # to avoid file modification conflicts with coverage reports
 
 # Global excludes for directories we don't want to check
 exclude: '^(venv/.*|\.venv/.*|node_modules/.*|\.git/.*|__pycache__/.*|\.pytest_cache/.*)'
