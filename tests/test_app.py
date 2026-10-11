@@ -139,6 +139,30 @@ class TestHTMLProcessing:
         assert "<iframe" in result
         assert 'srcdoc=""' in result
 
+    @pytest.mark.parametrize(
+        "html_input",
+        [
+            "<pre><code>&lt;div class=&quot;card&quot;&gt;</code></pre>",
+            "<p>Tom &amp; Jerry &copy; 2024</p>",
+            "<button onclick=\"alert(&quot;hi&quot;)\">Click</button>",
+            "<p title='single'>It's \"quoted\" & <b>bold</b></p>",
+        ],
+    )
+    def test_prepare_html_content_srcdoc_round_trip(self, html_input):
+        """The browser must get back exactly the generated HTML from srcdoc"""
+        from html.parser import HTMLParser
+
+        class SrcdocParser(HTMLParser):
+            srcdoc = None
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "iframe":
+                    self.srcdoc = dict(attrs)["srcdoc"]
+
+        parser = SrcdocParser()
+        parser.feed(prepare_html_content(html_input))
+        assert parser.srcdoc == html_input
+
 
 class TestExampleHandling:
     """Test cached examples and display functions"""
