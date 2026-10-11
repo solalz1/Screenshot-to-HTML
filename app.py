@@ -1,3 +1,4 @@
+import html
 import os
 import re
 import time
@@ -892,7 +893,10 @@ custom_iframe_template = """
 
 
 def prepare_html_content(html_content: str):
-    escaped_html_for_srcdoc = html_content.replace('"', "&quot;")
+    # srcdoc is an HTML attribute: the browser decodes entities once before rendering.
+    # Escape "&" as well as quotes so entities in the generated page (&lt;, &amp;,
+    # &quot;...) survive that decoding instead of turning into raw markup.
+    escaped_html_for_srcdoc = html.escape(html_content, quote=True)
     html_content = custom_iframe_template.format(
         escaped_html_for_srcdoc=escaped_html_for_srcdoc
     )
