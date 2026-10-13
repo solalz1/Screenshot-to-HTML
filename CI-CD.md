@@ -73,17 +73,15 @@ The project uses **GitHub Actions** for continuous integration and deployment wi
 - Docker image tagging
 - Pre-release support (alpha, beta, rc)
 
-### 5. **Dependency Updates** (`.github/workflows/dependency-update.yml`)
+### 5. **Dependency Updates** (Dependabot, `.github/dependabot.yml`)
 
 **Schedule:**
 - Weekly on Mondays at 9 AM UTC
-- Manual trigger available
 
 **Features:**
-- Automated dependency updates with pip-tools
-- Security vulnerability scanning
-- Automated pull request creation
-- Review assignment
+- Pull requests for Python, Docker and GitHub Actions updates
+- Labels and review assignment
+- Vulnerability scanning of dependencies runs in the CI workflow (safety, bandit)
 
 ## 🔧 Configuration Files
 
