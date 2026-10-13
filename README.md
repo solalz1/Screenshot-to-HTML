@@ -137,11 +137,10 @@ Triggered on version tags:
 - Docker image publishing
 - Documentation updates
 
-### **5. Dependency Updates (`dependency-update.yml`)**
+### **5. Dependency Updates (Dependabot, `.github/dependabot.yml`)**
 Scheduled weekly:
-- Automated dependency updates via Dependabot
-- Security vulnerability scanning
-- Automated pull request creation
+- Pull requests for Python, Docker and GitHub Actions updates
+- Dependency vulnerability scanning runs in `ci.yml` (safety, bandit)
 
 ## 🛠️ Troubleshooting
 
