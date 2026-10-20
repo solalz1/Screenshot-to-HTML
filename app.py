@@ -18,9 +18,12 @@ def extract_html_code(text: str):
 
 api_key = os.getenv("GOOGLE_API_KEY", "")
 
+# "-latest" aliases always point to Google's current Flash and Pro models. Dated
+# preview ids (gemini-2.5-flash-preview-04-17, ...) are shut down a few months
+# after release, which left the app with no working model.
 supported_models = [
-    "models/gemini-2.5-flash-preview-04-17",
-    "gemini-2.5-pro-preview-05-06",
+    "gemini-flash-latest",
+    "gemini-pro-latest",
 ]
 
 few_shot_examples = """
@@ -1001,8 +1004,9 @@ def check_key(gemini_api_key, model_name):
 
     try:
         genai.configure(api_key=gemini_api_key)
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        model.generate_content("Hello, world!")
+        # Looking up the selected model checks the key and the model at once,
+        # without generating anything (no quota used).
+        genai.get_model(f"models/{model_name.removeprefix('models/')}")
         gr.Success("Gemini API Key is valid")
         return gr.Code(value=""), gr.Tabs(selected=1)
     except Exception:
