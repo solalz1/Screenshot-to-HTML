@@ -935,6 +935,8 @@ async def chat_function(message, history):
 
 
 def stream_code(image_input, gemini_api_key, model_name):
+    if not image_input:
+        raise gr.Error("Upload a screenshot first.")
     gr.Info("Generating code from screenshot...")
     genai.configure(api_key=gemini_api_key)
 
@@ -1108,10 +1110,13 @@ with gr.Blocks(theme=gr.themes.Default()) as demo:  # You can experiment with th
         check_key, [gemini_api_key, model_name], [code_display, tab_group]
     )
 
-    code_streaming = is_key_valid.then(
+    # .success() rather than .then(): each step only runs if the previous one
+    # worked, so a bad key, a missing screenshot or a failed generation stops
+    # the chain instead of calling Gemini anyway or parsing an empty output.
+    code_streaming = is_key_valid.success(
         stream_code, [image_input, gemini_api_key, model_name], [code_display]
     )
-    then_display_html = code_streaming.then(
+    then_display_html = code_streaming.success(
         display_html, [code_display], [html_display, tab_group, code_display]
     )
     clear_button.click(

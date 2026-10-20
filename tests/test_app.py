@@ -268,6 +268,27 @@ class TestAPIValidation:
             check_key("invalid_key", "test_model")
 
 
+class TestGenerationFlow:
+    """The Send button chain: key check, generation, rendering"""
+
+    @patch("app.genai")
+    def test_stream_code_without_screenshot(self, mock_genai):
+        """No screenshot: a clear error, and nothing is sent to Gemini."""
+        for missing in (None, ""):
+            with pytest.raises(gr.Error, match="Upload a screenshot first"):
+                next(app.stream_code(missing, "key", app.supported_models[0]))
+        mock_genai.upload_file.assert_not_called()
+        mock_genai.GenerativeModel.assert_not_called()
+
+    def test_send_chain_stops_after_a_failed_step(self):
+        """Generation only runs after a valid key, rendering after a generation."""
+        deps = {d["api_name"]: d for d in app.demo.config["dependencies"]}
+        assert deps["stream_code"]["trigger_after"] == deps["check_key"]["id"]
+        assert deps["stream_code"]["trigger_only_on_success"] is True
+        assert deps["display_html"]["trigger_after"] == deps["stream_code"]["id"]
+        assert deps["display_html"]["trigger_only_on_success"] is True
+
+
 class TestDataValidation:
     """Test input validation and data sanitization"""
 
