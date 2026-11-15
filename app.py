@@ -883,12 +883,16 @@ def get_html_content(html_file_path):
 # --- Get your HTML content ---
 actual_html_content = get_html_content("base.html")
 
+# The generated page is untrusted: it comes from a model reading an arbitrary
+# screenshot. Without allow-same-origin the iframe gets an opaque origin, so its
+# scripts cannot reach the app around it (the API key field, Gradio's own API).
+# Without allow-top-navigation it cannot send the tab away to another site either.
 custom_iframe_template = """
 <iframe
     title="Embedded Application Content"
     srcdoc="{escaped_html_for_srcdoc}"
     style="width: 100%; height: 100%; min-height: 800px; border: none;"
-    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads allow-top-navigation-by-user-activation"
+    sandbox="allow-scripts allow-forms allow-popups allow-modals allow-downloads"
 >
     <p>Your browser does not support iframes, or the embedded content could not be displayed.</p>
 </iframe>
