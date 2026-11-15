@@ -164,6 +164,25 @@ class TestHTMLProcessing:
         parser.feed(prepare_html_content(html_input))
         assert parser.srcdoc == html_input
 
+    def test_prepare_html_content_isolates_generated_page(self):
+        """The generated page runs its scripts in an opaque origin, away from the app"""
+        from html.parser import HTMLParser
+
+        class SandboxParser(HTMLParser):
+            sandbox = None
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "iframe":
+                    self.sandbox = dict(attrs)["sandbox"].split()
+
+        parser = SandboxParser()
+        parser.feed(prepare_html_content("<script>parent.document</script>"))
+        assert "allow-scripts" in parser.sandbox
+        # allow-scripts with allow-same-origin would let the page read the API key
+        # field of the app around it; top navigation would let it leave the app.
+        assert "allow-same-origin" not in parser.sandbox
+        assert not any(t.startswith("allow-top-navigation") for t in parser.sandbox)
+
 
 class TestExampleHandling:
     """Test cached examples and display functions"""
